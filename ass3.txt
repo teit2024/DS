@@ -1,0 +1,54 @@
+import mpi.*;
+public class MPISum {
+ public static void main(String[] args) throws Exception {
+ MPI.Init(args);
+ int rank = MPI.COMM_WORLD.Rank();
+ int size = MPI.COMM_WORLD.Size();
+ int N = 8;
+ int n = N / size;
+ int[] arr = new int[N]; // Allocate for all processes
+ int[] subarr = new int[n];
+ // Only process 0 initializes the array
+ if (rank == 0) {
+ for (int i = 0; i < N; i++) {
+ arr[i] = i + 1;
+ }
+ }
+ MPI.COMM_WORLD.Scatter(arr, 0, n, MPI.INT, subarr, 0, n, MPI.INT, 0);
+ int local_sum = 0;
+ for (int i = 0; i < n; i++) {
+ local_sum += subarr[i];
+ }
+ System.out.println("Process " + rank + " calculated local sum: " + local_sum);
+ int[] total_sum = new int[1];
+ MPI.COMM_WORLD.Reduce(new int[]{local_sum}, 0, total_sum, 0, 1, MPI.INT, MPI.SUM, 0);
+ if (rank == 0) {
+ System.out.println("Total sum of array: " + total_sum[0]);
+ }
+ MPI.Finalize();
+ }
+}
+
+
+
+
+/*
+
+Commands:
+
+Assignment 3 setup (ubuntu):
+1. wget https://sourceforge.net/projects/mpjexpress/files/mpj-v0_44.zip
+2. unzip mpj-v0_44.zip
+3. mv mpj-v0_44 mpj
+4. echo 'export MPJ_HOME=$HOME/mpj' >> ~/.bashrc
+5. echo 'export PATH=$PATH:$MPJ_HOME/bin' >> ~/.bashrc
+6. source ~/.bashrc
+
+
+
+
+Assignment 3 run (Ubuntu):
+1. javac -cp .:$MPJ_HOME/lib/mpj.jar MPISum.java
+2. $MPJ_HOME/bin/mpjrun.sh -np 4 MPISum
+
+*/

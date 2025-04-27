@@ -1,0 +1,53 @@
+// BerkeleyServer.java
+import java.io.*;
+import java.net.*;
+import java.util.Date;
+public class BerkeleyServer {
+ public static void main(String[] args) throws Exception {
+ ServerSocket serverSocket = new ServerSocket(5000);
+ System.out.println("Server started, waiting for client...");
+ Socket socket = serverSocket.accept();
+ System.out.println("Client connected.");
+ DataInputStream input = new DataInputStream(socket.getInputStream());
+ DataOutputStream output = new DataOutputStream(socket.getOutputStream());
+ long clientTime = input.readLong();
+ System.out.println("Client time: " + new Date(clientTime));
+ long serverTime = System.currentTimeMillis();
+ System.out.println("Server time: " + new Date(serverTime));
+ long averageTime = (clientTime + serverTime) / 2;
+ System.out.println("Average time: " + new Date(averageTime)); // <-- PRINT AVERAGE TIME
+ long offset = averageTime - clientTime;
+ output.writeLong(offset);
+ System.out.println("Offset sent: " + offset);
+ socket.close();
+ serverSocket.close();
+ }
+}
+
+
+
+
+
+
+
+
+// BerkeleyClient.java
+import java.io.*;
+import java.net.*;
+import java.util.Date;
+import java.util.Random;
+public class BerkeleyClient {
+ public static void main(String[] args) throws Exception {
+ Socket socket = new Socket("localhost", 5000);
+ DataInputStream input = new DataInputStream(socket.getInputStream());
+ DataOutputStream output = new DataOutputStream(socket.getOutputStream());
+ long myTime = System.currentTimeMillis() + (new Random().nextInt(11) - 5) * 1000;
+ System.out.println("Original client time: " + new Date(myTime));
+ output.writeLong(myTime);
+ long offset = input.readLong();
+ System.out.println("Received offset: " + offset);
+ myTime += offset;
+ System.out.println("Adjusted client time: " + new Date(myTime));
+ socket.close();
+ }
+}

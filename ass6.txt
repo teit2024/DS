@@ -1,0 +1,100 @@
+//Bully.java
+
+import java.util.*;
+public class Bully {
+    public static void main(String []args)
+    {
+        Scanner sc = new Scanner(System.in);
+        
+        System.out.println("no. of processes");
+        int n=sc.nextInt();
+        
+        int []process=new int[n];
+
+        System.out.println("Process ID");
+        for(int i=0;i<n;i++)
+        {
+            process[i]=sc.nextInt();
+        }
+        
+        System.out.println("crash process");
+        int crash = sc.nextInt();
+        
+        System.out.println("initiator");
+        int initiator = sc.nextInt();
+        
+        for(int i=0;i<n;i++)
+        {
+            if(process[i]>initiator && process[i]!=crash)
+            {
+                System.out.println("process "+initiator+" -> process "+process[i]);
+            }
+        }
+        
+        int leader=-1;
+        int maxleader=-1;
+        for(int i=n-1;i>=0;i--)
+        {
+            if(process[i]!=crash)
+            {
+                
+                leader=process[i];
+                maxleader = Math.max(leader, maxleader);
+                
+            }
+        }
+        
+        System.out.println("new leader "+maxleader);
+    }
+    
+}
+
+
+
+
+
+
+//RingElection.java
+
+import java.util.*;
+public class RingElection {
+ public static void main(String args[]){
+ Scanner sc = new Scanner(System.in);
+
+ System.out.println("Enter Number Process : ");
+ int n = sc.nextInt();
+
+ int[] process = new int[n];
+ System.out.println("Enter Process ID'S : ");
+ for(int i =0;i<n;i++){
+ process[i] = sc.nextInt();
+ }
+
+ System.out.println("Enter crashed Process ID : ");
+ int crashed = sc.nextInt();
+
+ System.out.println("Enter Initiator Process ID : ");
+ int initiator = sc.nextInt();
+
+ int index = 0;
+ for(int i=0;i<n;i++){
+ if(process[i] == initiator){
+ index = i;
+ break;
+ }
+ }
+
+ System.out.println("Election Message is Passesd...");
+
+ int newleader = -1;
+ for(int i=0;i<n;i++){
+ int current = process[(index + i) % n];
+ if(current != crashed){
+ System.out.println(current + " - > ");
+ newleader = Math.max(newleader, current);
+ }
+ }
+ System.out.println("Back to process" + initiator);
+ System.out.println("New Coordinator is process : " + newleader);
+ }
+}

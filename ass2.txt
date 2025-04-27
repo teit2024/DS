@@ -1,0 +1,144 @@
+//Calculator.idl
+module CalculatorModule
+{
+ interface Calculator
+ {
+ float add(in float num1, in float num2);
+ float subtract(in float num1, in float num2);
+ float multiply(in float num1, in float num2);
+ float divide(in float num1, in float num2);
+ };
+};
+
+
+
+
+
+//CalculatorImpl.java
+import CalculatorModule.CalculatorPOA;
+class CalculatorImpl extends CalculatorPOA
+{
+ public float add(float num1, float num2)
+ {
+ return num1 + num2;
+ }
+ public float subtract(float num1, float num2)
+ {
+ return num1 - num2;
+ }
+ public float multiply(float num1, float num2)
+ {
+ return num1 * num2;
+ }
+ public float divide(float num1, float num2)
+ {
+ if (num2 == 0) throw new ArithmeticException("Cannot divide by zero");
+ return num1 / num2;
+ }
+}
+
+
+
+
+
+//CalculatorServer.java
+import CalculatorModule.Calculator;
+import org.omg.CosNaming.*;
+import org.omg.CORBA.*;
+import org.omg.PortableServer.*;
+public class CalculatorServer
+{
+public static void main(String args[])
+{
+try
+{
+ORB orb = ORB.init(args, null);
+POA rootPOA =
+POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
+rootPOA.the_POAManager().activate();
+CalculatorImpl calcImpl = new CalculatorImpl();
+org.omg.CORBA.Object ref = rootPOA.servant_to_reference(calcImpl);
+Calculator href = CalculatorModule.CalculatorHelper.narrow(ref);
+org.omg.CORBA.Object objRef =
+orb.resolve_initial_references("NameService");
+NamingContextExt ncRef = NamingContextExtHelper.narrow(objRef);
+String name = "Calculator";
+NameComponent path[] = ncRef.to_name(name);
+ncRef.rebind(path, href);
+System.out.println("Calculator Server Ready...");
+orb.run();
+}
+catch (Exception e)
+{
+ e.printStackTrace();
+}
+}
+}
+
+
+
+
+
+//CalculatorClient.java
+import CalculatorModule.Calculator;
+import org.omg.CosNaming.*;
+import org.omg.CORBA.*;
+import java.util.*;
+public class CalculatorClient
+{
+public static void main(String args[])
+{
+try
+{
+ORB orb = ORB.init(args, null);
+Scanner sc = new Scanner(System.in);
+org.omg.CORBA.Object objRef =
+orb.resolve_initial_references("NameService");
+NamingContextExt ncRef = NamingContextExtHelper.narrow(objRef);
+String name = "Calculator";
+Calculator calc =
+CalculatorModule.CalculatorHelper.narrow(ncRef.resolve_str(name));
+System.out.println("Enter First number: ");
+int a = sc.nextInt();
+System.out.println("Enter Second number: ");
+int b = sc.nextInt();
+System.out.println("Addition: " + calc.add(a,b));
+System.out.println("Subtraction: " + calc.subtract(a,b));
+System.out.println("Multiplication: " + calc.multiply(a,b));
+System.out.println("Division: " + calc.divide(a,b));
+}
+catch (Exception e)
+{
+e.printStackTrace();
+}
+}
+}
+
+
+
+
+
+
+/*
+
+
+Commands:
+
+
+Assignment 2 (Ubuntu):
+
+On first terminal:
+
+1. idlj -fall Calculator.idl
+2. javac *.java CalculatorModule/*.java
+3. orbd -ORBInitialPort 1050 &
+4. java CalculatorServer -ORBInitialPort 1050 -ORBInitialHost localhost &
+
+
+
+On second terminal:
+
+1. java CalculatorClient -ORBInitialPort 1050 - ORBInitialHost localhost
+
+
+*/
