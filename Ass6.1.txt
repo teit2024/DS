@@ -1,0 +1,221 @@
+import java.util.Scanner; 
+
+public class Bully 
+{ 
+    static boolean[] state = new boolean[6]; 
+    static int coordinator; 
+    public static void up(int up) 
+    { 
+        if (state[up - 1]) 
+        { 
+            System.out.println("Process " + up + " is already up"); 
+        }  
+        else  
+        { 
+            state[up - 1] = true; 
+            System.out.println("Process " + up + " held election"); 
+            for (int i = up; i < 5; i++) 
+            { 
+                System.out.println("Election message sent from process " + up + " to process " + (i + 1)); 
+            } 
+            for (int i = 4; i >= 0; i--) 
+            { 
+                if (!state[i]) continue; 
+                System.out.println("Alive message sent from process " + (i + 1) + " to process " + up); 
+                coordinator = i + 1; 
+                break; 
+            } 
+        } 
+    } 
+    public static void down(int down) 
+    { 
+        if (!state[down - 1]) 
+        { 
+            System.out.println("Process " + down + " is already down!"); 
+        }  
+        else  
+        { 
+            state[down - 1] = false; 
+            System.out.println("Process " + down + " is down."); 
+        } 
+    } 
+    public static void mess(int mess) 
+    { 
+        if (!state[mess - 1]) 
+        { 
+            System.out.println("Process is down"); 
+        } 
+        else 
+
+
+        { 
+            System.out.println("Process " + mess + " sent an election message"); 
+            int cor=mess; 
+            for (int i = mess; i < 5; i++) 
+            { 
+                if(state[i]) 
+                { 
+                    cor=i+1; 
+                    System.out.println("Election message sent from process " + mess + " to process " + (i 
++1)); 
+                } 
+            } 
+            System.out.println("Coordinator message sent from process " + cor + " to all"); 
+        } 
+    } 
+    public static void main(String[] args) 
+    { 
+        Scanner sc = new Scanner(System.in); 
+        for (int i = 0; i < 5; i++) 
+        { 
+            state[i] = true; 
+        } 
+        coordinator = 5; 
+        System.out.println("5 active processes are: p1 p2 p3 p4 p5"); 
+        System.out.println("Process 5 is the coordinator"); 
+        while (true) 
+        { 
+            System.out.println("\n1. Up a process\n2. Down a process\n3. Send a message\n4. Exit"); 
+            int choice = sc.nextInt(); 
+            switch (choice) 
+            { 
+                case 1: 
+                System.out.println("Enter process number to bring up:"); 
+                int up = sc.nextInt(); 
+                up(up); 
+                break; 
+                case 2: 
+                System.out.println("Enter process number to bring down:"); 
+                int down = sc.nextInt(); 
+                down(down); 
+                break; 
+                case 3: 
+                System.out.println("Enter process number to send a message:"); 
+                int mess = sc.nextInt(); 
+                mess(mess); 
+                break; 
+                case 4: 
+                System.out.println("Exiting..."); 
+
+
+                sc.close(); 
+                return; 
+                default: 
+                System.out.println("Invalid choice, try again."); 
+            } 
+        } 
+    } 
+} 
+
+
+
+
+//Ring.java
+
+import java.util.*;
+
+public class Ring {
+    public static void main(String args[]) {
+        Scanner sc = new Scanner(System.in);
+
+        System.out.println("Enter Number of Processes: ");
+        int n = sc.nextInt();
+
+        int[] process = new int[n];
+        System.out.println("Enter Process IDs:");
+        for (int i = 0; i < n; i++) {
+            process[i] = sc.nextInt();
+        }
+
+        System.out.println("Enter Crashed Process ID: ");
+        int crashed = sc.nextInt();
+
+        System.out.println("Enter Initiator Process ID: ");
+        int initiator = sc.nextInt();
+
+        int index = 0;
+        for (int i = 0; i < n; i++) {
+            if (process[i] == initiator) {
+                index = i;
+                break;
+            }
+        }
+
+        System.out.println("\nElection Message is Passed...");
+        List<Integer> aliveProcesses = new ArrayList<>();
+        int i = index;
+        int count = 0;
+
+        do {
+            if (process[i] != crashed) {
+                System.out.print(process[i] + " -> ");
+                aliveProcesses.add(process[i]);
+            }
+            i = (i + 1) % n;
+            count++;
+        } while (i != index && count <= n);
+
+        System.out.println("Back to process " + initiator);
+
+        // Find the highest process ID from aliveProcesses
+        int newLeader = Collections.max(aliveProcesses);
+        System.out.println("\nAlive processes participated: " + aliveProcesses);
+        System.out.println("New Coordinator is Process: " + newLeader);
+    }
+}
+
+
+
+
+//Bully.java
+
+// import java.util.*;
+
+// public class Bully {
+//     public static void main(String args[]) {
+//         Scanner sc = new Scanner(System.in);
+
+//         System.out.println("Enter Number of Processes: ");
+//         int n = sc.nextInt();
+
+//         int[] process = new int[n];
+//         System.out.println("Enter Process IDs:");
+//         for (int i = 0; i < n; i++) {
+//             process[i] = sc.nextInt();
+//         }
+
+//         System.out.println("Enter Crashed Process ID: ");
+//         int crashed = sc.nextInt();
+
+//         System.out.println("Enter Initiator Process ID: ");
+//         int initiator = sc.nextInt();
+
+//         boolean higherProcessAlive = false;
+
+//         System.out.println("\nElection Messages Sent:");
+//         for (int i = 0; i < n; i++) {
+//             if (process[i] > initiator && process[i] != crashed) {
+//                 System.out.println("Process " + initiator + " -> Process " + process[i]);
+//                 System.out.println("Process " + process[i] + " sends OK to Process " + initiator);
+//                 higherProcessAlive = true;
+//             }
+//         }
+
+//         int newLeader = -1;
+//         if (higherProcessAlive) {
+//             System.out.println("\nHigher process alive. Restarting election from higher processes...");
+//             for (int i = 0; i < n; i++) {
+//                 if (process[i] != crashed) {
+//                     if (process[i] > newLeader) {
+//                         newLeader = process[i];
+//                     }
+//                 }
+//             }
+//         } else {
+//             System.out.println("\nNo higher process alive. Initiator becomes coordinator.");
+//             newLeader = initiator;
+//         }
+
+//         System.out.println("\nNew Coordinator is Process: " + newLeader);
+//     }
+// }
